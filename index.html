@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>병동 출석 리워드</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f6f1;--sf:#fff;--tx:#1e2a22;--mu:#6b7a70;--ln:#dde5dc;--ac:#2f7d57;--a1:#cfe9d9;--bl:#2f6fe0;--dn:#c4452f;--rd:#fdeceb;--ac-tx:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a15;--sf:#1b261f;--tx:#e8f0ea;--mu:#8fa196;--ln:#2b3a30;--ac:#5fc08b;--a1:#24402f;--bl:#3c6fd1;--dn:#ef7d68;--rd:#3a2523;--ac-tx:#0d1a12}}
+:root[data-theme="dark"]{--bg:#121a15;--sf:#1b261f;--tx:#e8f0ea;--mu:#8fa196;--ln:#2b3a30;--ac:#5fc08b;--a1:#24402f;--bl:#3c6fd1;--dn:#ef7d68;--rd:#3a2523;--ac-tx:#0d1a12}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.45}
+.app{max-width:760px;margin:0 auto;padding:12px 14px 90px}
+h1{font-size:18px;margin:6px 0 10px}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:14px;margin-bottom:12px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.nav b{font-size:20px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--ln);background:var(--sf);border-radius:10px;padding:9px 14px}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.pri{background:var(--ac);color:var(--ac-tx);border-color:var(--ac);font-weight:600}
+.dng{color:var(--dn);border-color:var(--dn)}
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.sum div{background:var(--bg);border-radius:10px;padding:8px 2px;min-width:0}
+.sum small{display:block;color:var(--mu);font-size:11px}
+.sum span{font-weight:700;font-size:14px}
+.sum em{display:block;font-style:normal;font-size:10px;color:var(--dn);margin-top:2px}
+.bal{color:var(--ac)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow{text-align:center;color:var(--mu);font-size:12px;padding:4px 0}
+.dow:first-child,.dow:last-child{color:var(--dn)}
+.day{min-height:66px;border-radius:10px;border:1px solid var(--ln);background:var(--sf);padding:4px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;font-size:13px;min-width:0}
+.day.e{visibility:hidden}
+.day.off{background:var(--rd);border-color:var(--rd)}
+.day.today{outline:2px solid var(--tx)}
+.dh{min-width:0;max-width:100%;text-align:left}
+.dh span{display:block}
+.off .dh span{color:var(--dn)}
+.hn{display:block;font-style:normal;font-size:9px;color:var(--dn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it{display:flex;flex-direction:column;align-items:flex-end;align-self:flex-end;gap:2px}
+.it i{font-style:normal;font-size:10px;font-weight:700;border-radius:6px;padding:0 4px;white-space:nowrap}
+.c1{background:var(--a1)}.c2{background:var(--bl);color:#fff}
+.it u{text-decoration:none;font-size:10px;font-weight:700;border:1px solid var(--dn);color:var(--dn);border-radius:6px;padding:0 4px;background:var(--sf)}
+.lg{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mu)}
+.lg b{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:4px}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--sf);border-top:1px solid var(--ln);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs div{display:flex;max-width:760px;width:100%}
+.tabs button{flex:1;border:0;border-radius:0;background:none;padding:14px 2px;color:var(--mu)}
+.tabs button.on{color:var(--ac);font-weight:700}
+.row{display:flex;gap:8px;margin-bottom:8px}
+.row>*{flex:1;min-width:0}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--ln);border-radius:10px;background:var(--bg)}
+textarea{min-height:90px;font-size:13px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ln)}
+.li:last-child{border:0}
+.li small{color:var(--mu);display:block}
+.mu{color:var(--mu);font-size:13px}
+.st{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st div{background:var(--bg);border-radius:10px;padding:10px}
+.st small{color:var(--mu);display:block;font-size:12px}
+.st b{font-size:16px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:var(--sf);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:92%;overflow:auto}
+.sheet h3{margin:0 0 6px}
+.opts{display:flex;gap:8px;margin:10px 0}.opts button{flex:1;padding:16px 4px;font-weight:700;background:var(--ac);color:var(--ac-tx);border-color:var(--ac)}
+.opts button.b{background:var(--bl);border-color:var(--bl);color:#fff}
+.acts{display:flex;gap:8px;flex-wrap:wrap}.acts button{flex:1}
+.wt{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.wt button{padding:10px 2px;font-weight:700;display:flex;flex-direction:column;align-items:center}
+.wt button small{font-weight:400;font-size:11px;opacity:.8}
+.wt button.on{background:var(--ac);color:var(--ac-tx);border-color:var(--ac)}
+.pi{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--ln);padding:4px 0}
+.pi.on{background:var(--a1)}
+.pn{flex:1;display:flex;justify-content:space-between;align-items:center;border:0;background:none;text-align:left;padding:8px 4px;min-width:0}
+.pn small{display:block;color:var(--mu);font-weight:400}
+.sm{padding:6px 9px;font-size:12px}
+.pt{display:flex;align-items:center;gap:8px;padding:10px}
+.pt div{flex:1;text-align:center}.pt small{display:block;color:var(--mu)}
+.tw{overflow-x:auto}
+.tb{width:100%;border-collapse:collapse;font-size:13px}
+.tb th,.tb td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--ln);white-space:nowrap}
+.tb th:first-child,.tb td:first-child{text-align:left}
+.tb th{color:var(--mu);font-weight:500}
+.tb tr.tot td{font-weight:700}
+.gi{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--ln);cursor:pointer}
+.gi input{width:26px;height:26px;flex:none;padding:0;accent-color:var(--ac)}
+.gi>div{flex:1;min-width:0}
+.gi small{color:var(--mu)}
+.gi.dn{opacity:.55}.gi.dn .gn{text-decoration:line-through}
+details summary{cursor:pointer;font-weight:600;margin:10px 0}
+@keyframes inL{from{transform:translateX(36px);opacity:.35}to{transform:none;opacity:1}}@keyframes inR{from{transform:translateX(-36px);opacity:.35}to{transform:none;opacity:1}}
+.inL{animation:inL .2s ease-out}.inR{animation:inR .2s ease-out}.swp{touch-action:pan-y}
+@media (prefers-reduced-motion:reduce){.inL,.inR{animation:none}}
+@media (min-width:700px){.ov{align-items:center}.sheet{border-radius:18px}.day{font-size:15px;min-height:80px}.it i,.it u{font-size:12px}.hn{font-size:11px}}
+</style></head><body>
+<div class="app"><h1>병동 출석 리워드 <small id="sd" class="mu"></small></h1><div id="v"></div></div>
+<div class="tabs"><div id="tb"></div></div>
+<div id="md"></div>
+<script>
+// Firebase 설정값을 여기에 넣고 GitHub에 올리면 모든 기기에 자동 적용돼요. 예: {apiKey:"...",authDomain:"...",projectId:"...",appId:"..."}
+var FB_CONFIG={apiKey: "AIzaSyC9vcRXUlQScqLpXk_MXLFQ0vI-GN3uAp0",
+  authDomain: "ward-attendance-rewards-3b279.firebaseapp.com",
+  projectId: "ward-attendance-rewards-3b279",
+  storageBucket: "ward-attendance-rewards-3b279.firebasestorage.app",
+  messagingSenderId: "434419773956",
+  appId: "1:434419773956:web:013b96aaf65c4403fbbb51"};
+// 자동 공유 방 이름. 값이 있으면 코드 입력 없이 이 주소를 연 모든 기기가 자동으로 같은 데이터를 공유해요. ""(빈 값)이면 설정 탭에서 공유 코드를 직접 입력해요.
+var AUTO_ROOM="";
+var KEY="attend-reward-v2",SK="attend-sort",S=null,tab="cal",sv="w",sortM="n",ward=2,pid=null,q="",edit=null,aedit=null,swd=0,now=new Date(),Y=now.getFullYear(),M=now.getMonth();
+var $=function(s){return document.querySelector(s)};
+var pad=function(n){return(n<10?"0":"")+n};
+var key=function(y,m,d){return y+"-"+pad(m+1)+"-"+pad(d)};
+var won=function(n){return n.toLocaleString("ko-KR")+"원"};
+var ms=function(y,m){return y+"-"+pad(m+1)};
+var uid=function(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+var DW=["일","월","화","수","목","금","토"];
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var HD={2025:"0101신정 0127임시휴일 0128설날 0129설날 0130설날 0301삼일절 0303대체휴일 0505어린이날 0506대체휴일 0603대선 0606현충일 0815광복절 1003개천절 1005추석 1006추석 1007추석 1008대체휴일 1009한글날 1225성탄절",
+2026:"0101신정 0216설날 0217설날 0218설날 0301삼일절 0302대체휴일 0501노동절 0505어린이날 0524석가탄신일 0525대체휴일 0603지방선거 0606현충일 0717제헌절 0815광복절 0817대체휴일 0924추석 0925추석 0926추석 1003개천절 1005대체휴일 1009한글날 1225성탄절",
+2027:"0101신정 0206설날 0207설날 0208설날 0209대체휴일 0301삼일절 0501노동절 0503대체휴일 0505어린이날 0513석가탄신일 0606현충일 0717제헌절 0719대체휴일 0815광복절 0816대체휴일 0914추석 0915추석 0916추석 1003개천절 1004대체휴일 1009한글날 1011대체휴일 1225성탄절 1227대체휴일"};
+var HOL={};for(var hy in HD)HD[hy].split(" ").forEach(function(t){HOL[hy+"-"+t.slice(0,2)+"-"+t.slice(2,4)]=t.slice(4)});
+var CF=null;try{CF=new Intl.DateTimeFormat("en-u-ca-chinese",{month:"numeric",day:"numeric",timeZone:"UTC"});CF.formatToParts(new Date(0))}catch(e){CF=null}
+function dk(d){return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate())}
+function lunar(dt){var m,d;CF.formatToParts(dt).forEach(function(p){if(p.type=="month")m=p.value;if(p.type=="day")d=+p.value});return[m,d]}
+function findL(y,m0,d0,a,b){for(var t=Date.UTC(y,a[0]-1,a[1],12);t<=Date.UTC(y,b[0]-1,b[1],12);t+=864e5){var r=lunar(new Date(t));if(r[0]==String(m0)&&r[1]==d0)return new Date(t)}return null}
+var HC={},ELI={"설날":2,"추석":2,"어린이날":1,"삼일절":1,"광복절":1,"개천절":1,"한글날":1,"석가탄신일":1,"성탄절":1,"노동절":1,"제헌절":1};
+function holY(y){
+ if(HC[y])return HC[y];
+ var H={};
+ if(!CF){for(var k in HOL)if(k.slice(0,4)==y)H[k]=[HOL[k]];return HC[y]=H}
+ var add=function(d,n){(H[d]=H[d]||[]).push(n)},kk=function(m,d){return key(y,m-1,d)},wd=function(m,d){return new Date(Date.UTC(y,m-1,d,12)).getUTCDay()};
+ add(kk(1,1),"신정");add(kk(3,1),"삼일절");add(kk(5,5),"어린이날");add(kk(6,6),"현충일");add(kk(8,15),"광복절");add(kk(10,3),"개천절");add(kk(10,9),"한글날");add(kk(12,25),"성탄절");
+ if(y>=2026){add(kk(5,1),"노동절");add(kk(7,17),"제헌절")}
+ var tri=function(c,n){if(c)[-1,0,1].forEach(function(o){add(dk(new Date(c.getTime()+o*864e5)),n)})};
+ tri(findL(y,1,1,[1,15],[2,25]),"설날");tri(findL(y,8,15,[9,5],[10,15]),"추석");
+ var bd=findL(y,4,8,[4,15],[6,25]);if(bd)add(dk(bd),"석가탄신일");
+ if(y==2025){add("2025-01-27","임시휴일");add("2025-06-03","대선")}
+ var wed=function(t){var d=new Date(t);while(d.getUTCDay()!=3)d=new Date(d.getTime()+864e5);return dk(d)};
+ if(y>=2026&&(y-2026)%4==0)add(wed(Date.UTC(y,5,1,12)),"지방선거");
+ if(y>=2028&&(y-2028)%4==0)add(wed(Date.UTC(y,4,29,12)-50*864e5),"총선");
+ if(y>=2030&&(y-2030)%5==0)add(wed(Date.UTC(y,5,3,12)-70*864e5),"대선");
+ Object.keys(H).sort().forEach(function(d){
+  var nm=H[d],w=new Date(d+"T12:00:00Z").getUTCDay(),need=false,el=nm.filter(function(n){return ELI[n]});
+  nm.forEach(function(n){var t=ELI[n];if(t&&(w==0||(t==1&&w==6)))need=true});
+  if(el.length>1)need=true;
+  if(need){var x=new Date(d+"T12:00:00Z");do{x=new Date(x.getTime()+864e5)}while(x.getUTCDay()==0||x.getUTCDay()==6||H[dk(x)]);add(dk(x),"대체휴일")}
+ });
+ return HC[y]=H;
+}
+function hol(k){var H=holY(+k.slice(0,4))[k];return H?H.join("·"):undefined}
+
+try{var raw=localStorage.getItem(KEY);if(raw){var p0=JSON.parse(raw);if(p0&&p0.patients&&p0.att&&p0.exp)S=p0}}catch(e){}
+try{if(localStorage.getItem(SK)=="f")sortM="f"}catch(e){}
+var gd=key(now.getFullYear(),now.getMonth(),now.getDate()),gw=2;
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){saveLocal();push()}
+function nv(v){return Array.isArray(v)?v.slice():(v>0?[{a:v}]:[])}
+function P(id){return S.patients.filter(function(p){return p.id==id})[0]}
+function pats(w){return S.patients.filter(function(p){return p.ward==w}).sort(function(a,b){return a.name.localeCompare(b.name,"ko")})}
+function plist(w){var l=pats(w);if(sortM=="f"){var d={};l.forEach(function(p){d[p.id]=stats(p.id,Y,M).days});l=l.sort(function(a,b){return d[b.id]-d[a.id]||a.name.localeCompare(b.name,"ko")})}return l}
+function ensureP(){var need=!P(pid)||((tab=="cal"||tab=="stat")&&P(pid).ward!=ward);if(need){var l=plist(ward);pid=l.length?l[0].id:null}}
+function seed(){
+ var N={2:["김민수","이영희","박철수"],3:["최지은","정우성","한소희"],4:["강동원","윤서연","임도현"],5:["오세진","신하늘","배준호"]};
+ for(var w in N)N[w].forEach(function(n){S.patients.push({id:uid("p"),ward:+w,name:n})});
+ var id=S.patients[0].id,a=S.att[id]={},pm=new Date(now.getFullYear(),now.getMonth()-1,1);
+ for(var d=1;d<=10;d++)a[key(pm.getFullYear(),pm.getMonth(),d)]=[{a:d%2?100:200}];
+ a[key(Y,M,1)]=[{a:100},{a:200}];a[key(Y,M,2)]=[{a:100}];a[key(Y,M,3)]=[{a:200}];
+ S.exp.push({id:uid("e"),pid:id,date:key(Y,M,2),amt:1800,memo:"간식 (예시)",done:true,dt:"10:00"});
+ S.exp.push({id:uid("e"),pid:S.patients[1].id,date:gd,amt:700,memo:"음료 (예시)",done:false});
+}
+if(S&&!S.adj)S.adj=[];
+if(!S){S={patients:[],att:{},exp:[],adj:[]};if(!FB_CONFIG)seed();save()}
+function stats(id,y,m){
+ var pre=ms(y,m),a=S.att[id]||{},carry=0,rew=0,sp=0,c1=0,c2=0,days=0,ta=0,te=0,oc=0,tc=0,ia=0;
+ for(var k in a){var es=nv(a[k]),t=0;es.forEach(function(e){t+=e.a});ta+=t;var mk=k.slice(0,7);
+  if(mk<pre)carry+=t;else if(mk==pre){rew+=t;if(t>0)days++;es.forEach(function(e){e.a==100?c1++:c2++})}}
+ S.exp.forEach(function(e){if(e.pid!=id)return;te+=e.amt;tc++;var mk=e.date.slice(0,7);if(mk<pre)carry-=e.amt;else if(mk==pre){sp+=e.amt;oc++}});
+ S.adj.forEach(function(a){if(a.pid!=id)return;ia+=a.amt;if(a.date.slice(0,7)<=pre)carry+=a.amt});
+ var fc=Math.min(sp,Math.max(carry,0)),fr=sp-fc;
+ return{carry:carry,rew:rew,sp:sp,fc:fc,fr:fr,cl:carry-fc,rl:rew-fr,bal:carry+rew-sp,c1:c1,c2:c2,days:days,ta:ta,te:te,oc:oc,tc:tc,ia:ia};
+}
+function go(d){M+=d;if(M<0){M=11;Y--}if(M>11){M=0;Y++}render()}
+function nav(){return '<div class="nav"><button onclick="go(-1)" aria-label="이전 달">‹</button><b>'+Y+'년 '+(M+1)+'월</b><button onclick="go(1)" aria-label="다음 달">›</button></div>'}
+function hdr(){var p=P(pid);return '<div class="card pt"><button onclick="step(-1)" aria-label="이전 환자">‹</button><div><b style="font-size:18px">'+esc(p.name)+'</b><small>'+p.ward+'병동</small></div><button onclick="step(1)" aria-label="다음 환자">›</button><button onclick="ward=P(pid).ward;tab=\'list\';render()">환자 목록</button></div>'}
+function step(d){var l=plist(P(pid).ward),i=l.findIndex(function(p){return p.id==pid});pid=l[(i+d+l.length)%l.length].id;if(tab=="cal")swd=d;render()}
+function summary(s){
+ return '<div class="sum"><div><small>이월</small><span>'+won(s.cl)+'</span>'+(s.fc?'<em>'+won(s.carry)+' 중 −'+won(s.fc)+'</em>':'')+'</div>'+
+ '<div><small>이번 달 적립</small><span>'+won(s.rl)+'</span>'+(s.fr?'<em>'+won(s.rew)+' 중 −'+won(s.fr)+'</em>':'')+'</div>'+
+ '<div><small>지출</small><span>'+won(s.sp)+'</span></div><div><small>잔액</small><span class="bal">'+won(s.bal)+'</span></div></div>'+
+ (s.sp?'<p class="mu" style="margin:8px 0 0">지출은 이월금액에서 먼저 차감하고, 부족하면 이번 달 적립에서 차감해요.</p>':'');
+}
+function noP(){return '<div class="card"><p>'+ward+'병동에 등록된 환자가 없어요. 병동 탭에서 환자를 추가해 주세요.</p><button class="pri" onclick="tab=\'list\';render()">병동 탭으로</button></div>'}
+function render(){
+ ensureP();
+ var T=[["list","병동"],["cal","달력"],["gift","물품지급"],["stat","통계"],["set","설정"]],h;
+ $("#tb").innerHTML=T.map(function(t){return '<button class="'+(tab==t[0]?"on":"")+'" onclick="tab=\''+t[0]+'\';render()">'+t[1]+'</button>'}).join("");
+ if(tab=="list")h=vList();else if(tab=="set")h=vSet();else if(tab=="stat")h=vStat();else if(tab=="gift")h=vGift();
+ else h=P(pid)?vCal():wtabs("selW")+noP();
+ $("#v").innerHTML=h;
+ if(tab=="list")fl();if(tab=="set")bk();
+}
+function setSort(m){sortM=m;try{localStorage.setItem(SK,m)}catch(e){}render()}
+function wtabs(fn){return '<div class="wt">'+[2,3,4,5].map(function(w){return '<button class="'+(w==ward?"on":"")+'" onclick="'+fn+'('+w+')">'+w+'병동<small>'+pats(w).length+'명</small></button>'}).join("")+'</div>'}
+function selW(w){ward=w;gw=w;q="";render()}
+function vList(){
+ return wtabs("selW")+nav()+
+ '<div class="card"><input id="q" placeholder="'+ward+'병동 환자 이름 검색" oninput="q=this.value;fl()" value="'+esc(q)+'"><div class="row" style="margin:8px 0 0"><button class="'+(sortM=="n"?"pri":"")+'" onclick="setSort(\'n\')">이름순 (가나다)</button><button class="'+(sortM=="f"?"pri":"")+'" onclick="setSort(\'f\')">참여빈도순</button></div><details><summary>'+ward+'병동에 환자 추가</summary><textarea id="pb" placeholder="이름을 한 줄에 한 명씩 입력하세요 (여러 명 한꺼번에 가능)"></textarea><button class="pri" style="margin-top:8px" onclick="addPats()">추가</button></details><details><summary>수기 이월금액 일괄 입력</summary><p class="mu">지금까지 수기로 적어 온 금액을 이월금액으로 불러와요. 한 줄에 한 명씩 "이름 금액"으로 붙여넣으세요(엑셀에서 두 열을 복사해도 돼요). 기준일이 속한 달부터 이월금액에 반영돼요.</p><input type="date" id="ad2" value="'+td()+'" style="margin-bottom:8px"><textarea id="ab" placeholder="김민수 3000&#10;이영희 1500"></textarea><label class="mu" style="display:block;margin:8px 0"><input type="checkbox" id="an" checked style="width:auto;padding:0"> 명단에 없는 이름은 환자로 새로 추가</label><button class="pri" onclick="bulkAdj()">이월금액 등록</button></details><div id="pl"></div></div>';
+}
+function fl(){
+ var l=plist(ward).filter(function(p){return p.name.indexOf(q.trim())>-1}),tot=0;
+ var h=l.map(function(p){var s=stats(p.id,Y,M);tot+=s.bal;return '<div class="pi '+(p.id==pid?"on":"")+'"><button class="pn" onclick="pid=\''+p.id+'\';tab=\'cal\';render()"><div><b>'+esc(p.name)+'</b><small>'+(M+1)+'월 출석 '+s.days+'일</small></div><b class="bal">'+won(s.bal)+'</b></button><button class="sm" onclick="editPat(\''+p.id+'\')">수정</button><button class="sm dng" onclick="delPat(\''+p.id+'\')">삭제</button></div>'}).join("");
+ $("#pl").innerHTML='<div class="mu" style="margin:6px 0">'+l.length+'명 · 잔액 합계 '+won(tot)+'</div>'+(h||'<p class="mu">환자가 없어요. 위에서 추가해 주세요.</p>');
+}
+function addPats(){
+ var n=$("#pb").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);
+ n.forEach(function(x){S.patients.push({id:uid("p"),ward:ward,name:x})});save();render();
+}
+function editPat(id){
+ var p=P(id);
+ $("#md").innerHTML='<div class="ov"><div class="sheet"><h3>환자 정보 수정</h3><div class="row" style="margin-top:10px"><input id="mn" value="'+esc(p.name)+'"><select id="mw">'+[2,3,4,5].map(function(w){return '<option value="'+w+'"'+(w==p.ward?" selected":"")+'>'+w+'병동</option>'}).join("")+'</select></div><div class="acts"><button class="pri" id="ms">저장</button><button onclick="closeM()">취소</button></div></div></div>';
+ $("#ms").onclick=function(){var n=$("#mn").value.trim();if(!n)return;p.name=n;p.ward=+$("#mw").value;ward=p.ward;save();closeM();render()};
+}
+function delPat(id){var p=P(id);ask("환자 삭제",esc(p.name)+"님의 출석과 지출 기록이 모두 삭제되며 되돌릴 수 없어요.",[["삭제","dng",function(){S.patients=S.patients.filter(function(x){return x.id!=id});delete S.att[id];S.exp=S.exp.filter(function(e){return e.pid!=id});S.adj=S.adj.filter(function(a){return a.pid!=id});if(pid==id)pid=null;save();closeM();render()}],["취소","",closeM]])}
+function vCal(){
+ var an=swd>0?" inL":swd<0?" inR":"";swd=0;
+ var s=stats(pid,Y,M),a=S.att[pid]||{},first=new Date(Y,M,1).getDay(),n=new Date(Y,M+1,0).getDate(),h="",xs={};
+ S.exp.forEach(function(e){if(e.pid==pid)xs[e.date]=(xs[e.date]||0)+e.amt});
+ DW.forEach(function(d){h+='<div class="dow">'+d+'</div>'});
+ for(var i=0;i<first;i++)h+='<div class="day e"></div>';
+ var tk=key(now.getFullYear(),now.getMonth(),now.getDate());
+ for(var d=1;d<=n;d++){var k=key(Y,M,d),x=xs[k]||0,c="",dw=(first+d-1)%7,hn=hol(k),off=dw==0||dw==6||hn;
+  nv(a[k]).forEach(function(e){c+='<i class="c'+(e.a>=200?2:1)+'">+'+e.a+'</i>'});
+  if(x)c+='<u>−'+x+'</u>';
+  h+='<button class="day'+(off?" off":"")+(k==tk?" today":"")+'" onclick="pick(\''+k+'\')"><div class="dh"><span>'+d+'</span>'+(hn?'<em class="hn">'+hn+'</em>':'')+'</div><div class="it">'+c+'</div></button>'}
+ return wtabs("selW")+hdr()+nav()+'<div class="card">'+summary(s)+'</div><div class="card swp'+an+'"><div class="cal">'+h+'</div><div class="lg"><span><b style="background:var(--a1)"></b>+100원</span><span><b style="background:var(--bl)"></b>+200원</span><span><b style="border:1px solid var(--dn)"></b>−지출</span><span><b style="background:var(--rd)"></b>토·일·공휴일</span></div><p class="mu" style="margin:8px 0 0">날짜를 누르면 적립을 기록해요. 하루에 여러 번 추가할 수 있어요. 달력을 좌우로 밀면 이전/다음 환자로 넘어가요.</p></div>'+expCard(s)+adjCard();
+}
+function ent(id,k){return nv((S.att[id]||{})[k])}
+function pick(k){
+ var es=ent(pid,k),tot=0,xs=S.exp.filter(function(e){return e.pid==pid&&e.date==k}),hn=hol(k);
+ es.forEach(function(e){tot+=e.a});
+ var ls=es.map(function(e,i){return '<div class="li"><span>적립 <b>'+won(e.a)+'</b></span><button class="sm dng" onclick="delE(\''+k+'\','+i+')">삭제</button></div>'}).join("");
+ $("#md").innerHTML='<div class="ov" onclick="if(event.target==this)closeM()"><div class="sheet"><h3>'+esc(P(pid).name)+' · '+k.replace(/-/g,".")+'</h3><div class="mu">'+(hn?hn+' · ':'')+'이 날 적립 합계 <b class="bal">'+won(tot)+'</b></div>'+(ls||'<p class="mu">아직 적립이 없어요.</p>')+
+ '<div class="opts"><button onclick="addE(\''+k+'\',100)">+100원</button><button class="b" onclick="addE(\''+k+'\',200)">+200원</button></div>'+
+ (xs.length?'<div class="mu" style="margin-bottom:10px">이 날 지출: '+xs.map(function(e){return esc(e.memo||"지출")+' −'+won(e.amt)}).join(", ")+'</div>':'')+'<button style="width:100%" onclick="closeM()">닫기</button></div></div>';
+}
+function putE(k,es,open){var a=S.att[pid]||(S.att[pid]={});if(es.length)a[k]=es;else delete a[k];save();render();if(open)pick(k);else closeM()}
+function addE(k,a){var es=ent(pid,k);es.push({a:a});putE(k,es,false)}
+function delE(k,i){var es=ent(pid,k);es.splice(i,1);putE(k,es,true)}
+function closeM(){$("#md").innerHTML=""}
+function expCard(s){
+ var pre=ms(Y,M),e=edit?S.exp.filter(function(x){return x.id==edit})[0]:null;
+ var dflt=e?e.date:(now.getFullYear()==Y&&now.getMonth()==M?key(Y,M,now.getDate()):key(Y,M,1));
+ var list=S.exp.filter(function(x){return x.pid==pid&&x.date.slice(0,7)==pre}).sort(function(a,b){return b.date<a.date?-1:1});
+ return '<div class="card"><b>'+(e?"지출 수정":"물품 구매(지출) 등록")+'</b><div class="mu" style="margin:2px 0 8px">사용 가능한 잔액 <b class="bal">'+won(s.bal)+'</b></div><div class="row"><input type="date" id="ed" value="'+dflt+'"><input type="number" id="ea" inputmode="numeric" min="1" placeholder="금액(원)" value="'+(e?e.amt:"")+'"></div><input id="em" placeholder="물품 (간식, 음료, 문구류)" value="'+(e?esc(e.memo):"")+'" style="margin-bottom:8px"><div class="acts"><button class="pri" onclick="saveExp()">'+(e?"수정 저장":"추가")+'</button>'+(e?'<button onclick="edit=null;render()">취소</button>':"")+'</div><div id="er" class="mu" style="color:var(--dn);margin-top:6px"></div></div>'+
+ '<div class="card"><b>'+(M+1)+'월 지출 '+won(s.sp)+'</b>'+(list.length?list.map(function(x){return '<div class="li"><div><b>'+esc(x.memo||"지출")+'</b><small>'+x.date.replace(/-/g,".")+' · '+(x.done?"지급완료 "+(x.dt||""):"미지급")+'</small></div><div class="acts" style="flex:none;align-items:center"><span>'+won(x.amt)+'</span><button class="sm" onclick="edit=\''+x.id+'\';render()">수정</button><button class="sm dng" onclick="delExp(\''+x.id+'\')">삭제</button></div></div>'}).join(""):'<p class="mu">이 달에 등록된 지출이 없어요.</p>')+'</div>';
+}
+function saveExp(){
+ var d=$("#ed").value,a=parseInt($("#ea").value,10),m=$("#em").value.trim();
+ if(!d||!(a>0)){$("#er").textContent="날짜와 1원 이상의 금액을 입력해 주세요.";return}
+ if(edit){S.exp.forEach(function(x){if(x.id==edit){x.date=d;x.amt=a;x.memo=m}});edit=null}
+ else S.exp.push({id:uid("e"),pid:pid,date:d,amt:a,memo:m,done:false});
+ save();render();
+}
+function delExp(id){ask("지출 삭제","이 지출 내역을 삭제할까요? 잔액이 다시 계산됩니다.",[["삭제","dng",function(){S.exp=S.exp.filter(function(x){return x.id!=id});save();closeM();render()}],["취소","",closeM]])}
+function ask(t,b,acts){
+ $("#md").innerHTML='<div class="ov"><div class="sheet"><h3>'+t+'</h3><p class="mu">'+b+'</p><div class="acts">'+acts.map(function(a,i){return '<button class="'+a[1]+'" id="ak'+i+'">'+a[0]+'</button>'}).join("")+'</div></div></div>';
+ acts.forEach(function(a,i){$("#ak"+i).onclick=a[2]});
+}
+function gsh(n){var d=new Date(gd+"T00:00:00");d.setDate(d.getDate()+n);gd=key(d.getFullYear(),d.getMonth(),d.getDate());render()}
+function giveT(id){S.exp.forEach(function(x){if(x.id==id){x.done=!x.done;var t=new Date();x.dt=x.done?pad(t.getHours())+":"+pad(t.getMinutes()):""}});save();render()}
+function vGift(){
+ var all=S.exp.filter(function(x){return x.date==gd&&P(x.pid)}),
+ L=all.filter(function(x){return !gw||P(x.pid).ward==gw}).sort(function(a,b){var pa=P(a.pid),pb=P(b.pid);return pa.ward-pb.ward||pa.name.localeCompare(pb.name,"ko")}),
+ tot=0,dn=0,g={};
+ L.forEach(function(x){tot+=x.amt;if(x.done)dn++;var m=x.memo||"(항목 없음)",o=g[m]=g[m]||{n:0,a:0,d:0};o.n++;o.a+=x.amt;if(x.done)o.d++});
+ var wb=[0,2,3,4,5].map(function(w){var c=all.filter(function(x){return !w||P(x.pid).ward==w}).length;return '<button class="'+(w==gw?"pri":"")+'" onclick="gw='+w+';render()" style="padding:10px 2px">'+(w?w+"병동":"전체")+'<br><small>'+c+'건</small></button>'}).join("");
+ var rows=L.map(function(x){var p=P(x.pid);return '<label class="gi'+(x.done?" dn":"")+'"><input type="checkbox"'+(x.done?" checked":"")+' onchange="giveT(\''+x.id+'\')"><div><b class="gn">'+esc(p.name)+'</b> <small>'+p.ward+'병동</small><div class="gn">'+esc(x.memo||"(항목 없음)")+'</div>'+(x.done?'<small>지급 '+(x.dt||"")+'</small>':'')+'</div><b>'+won(x.amt)+'</b></label>'}).join("");
+ var gr=Object.keys(g).map(function(m){return '<tr><td>'+esc(m)+'</td><td>'+g[m].d+'/'+g[m].n+'건</td><td>'+won(g[m].a)+'</td></tr>'}).join("");
+ return '<div class="nav"><button onclick="gsh(-1)" aria-label="전날">‹</button><div style="text-align:center"><b style="font-size:18px">'+gd.replace(/-/g,".")+' ('+DW[new Date(gd+"T00:00:00").getDay()]+')</b><div><button class="sm" onclick="gd=key(now.getFullYear(),now.getMonth(),now.getDate());render()">오늘</button></div></div><button onclick="gsh(1)" aria-label="다음날">›</button></div>'+
+ '<div class="row" style="grid-template-columns:repeat(5,1fr)">'+wb+'</div>'+
+ '<div class="card"><div class="st"><div><small>주문</small><b>'+L.length+'건</b></div><div><small>지급 완료</small><b class="bal">'+dn+'건</b></div><div><small>미지급</small><b style="color:var(--dn)">'+(L.length-dn)+'건</b></div><div><small>합계 금액</small><b>'+won(tot)+'</b></div></div></div>'+
+ '<div class="card"><b>주문 목록</b><p class="mu" style="margin:2px 0">물건을 전달하면 체크하세요.</p>'+(rows||'<p class="mu">이 날 주문한 물품이 없어요. 달력 화면 아래에서 지출(물품 구매)을 등록하면 여기에 나타나요.</p>')+'</div>'+
+ (gr?'<div class="card"><b>품목별 합계</b><div class="tw"><table class="tb"><tr><th>물품</th><th>지급/주문</th><th>금액</th></tr>'+gr+'</table></div></div>':'');
+}
+function td(){return key(now.getFullYear(),now.getMonth(),now.getDate())}
+function adoc(x){return{pid:x.pid,date:x.date,amt:x.amt,memo:x.memo||""}}
+function adjCard(){
+ var e=aedit?S.adj.filter(function(x){return x.id==aedit})[0]:null,tot=0;
+ var l=S.adj.filter(function(x){return x.pid==pid}).sort(function(a,b){return b.date<a.date?-1:1});
+ l.forEach(function(x){tot+=x.amt});
+ return '<div class="card"><b>'+(e?"이월금액 수정":"이월금액 추가")+'</b><p class="mu" style="margin:2px 0 8px">수기 장부 금액 등을 이월금액으로 더해요. 입력한 날짜가 속한 달부터 이월금액에 포함돼요. 줄일 때는 −금액(정정)을 입력하세요.</p><div class="row"><input type="date" id="ad" value="'+(e?e.date:td())+'"><input type="number" id="aa" inputmode="numeric" placeholder="금액(원)" value="'+(e?e.amt:"")+'"></div><input id="am" placeholder="메모 (예: 수기 장부 이월)" value="'+(e?esc(e.memo):"")+'" style="margin-bottom:8px"><div class="acts"><button class="pri" onclick="saveAdj()">'+(e?"수정 저장":"추가")+'</button>'+(e?'<button onclick="aedit=null;render()">취소</button>':"")+'</div><div id="ar" class="mu" style="color:var(--dn);margin-top:6px"></div>'+
+ (l.length?'<div style="margin-top:10px"><b>추가한 이월금액 합계 '+won(tot)+'</b>'+l.map(function(x){return '<div class="li"><div><b>'+esc(x.memo||"이월")+'</b><small>'+x.date.replace(/-/g,".")+'</small></div><div class="acts" style="flex:none;align-items:center"><span>'+(x.amt>0?"+":"")+won(x.amt)+'</span><button class="sm" onclick="aedit=\''+x.id+'\';render()">수정</button><button class="sm dng" onclick="delAdj(\''+x.id+'\')">삭제</button></div></div>'}).join("")+'</div>':'')+'</div>';
+}
+function saveAdj(){
+ var d=$("#ad").value,a=parseInt($("#aa").value,10),m=$("#am").value.trim();
+ if(!d||!a){$("#ar").textContent="날짜와 0이 아닌 금액을 입력해 주세요.";return}
+ if(aedit){S.adj.forEach(function(x){if(x.id==aedit){x.date=d;x.amt=a;x.memo=m}});aedit=null}
+ else S.adj.push({id:uid("a"),pid:pid,date:d,amt:a,memo:m});
+ save();render();
+}
+function delAdj(id){ask("이월금액 삭제","이 이월금액 내역을 삭제할까요? 잔액이 다시 계산됩니다.",[["삭제","dng",function(){S.adj=S.adj.filter(function(x){return x.id!=id});save();closeM();render()}],["취소","",closeM]])}
+function bulkAdj(){
+ var d=$("#ad2").value,add=$("#an").checked,L=$("#ab").value.split("\n"),rows=[],bad=[],nw={},tot=0,cur=pats(ward);
+ if(!d){ask("기준일 필요","기준일을 선택해 주세요.",[["확인","pri",closeM]]);return}
+ L.forEach(function(l){l=l.trim();if(!l)return;
+  var m=/^(.*?)[\s,]+(-?[\d,]+)\s*원?$/.exec(l),a=m?parseInt(m[2].replace(/,/g,""),10):0,n=m?m[1].trim():"";
+  if(!m||!n||!a){bad.push(l);return}
+  var p=cur.filter(function(x){return x.name==n})[0];
+  if(!p&&!add){bad.push(l);return}
+  if(!p)nw[n]=1;
+  rows.push({n:n,a:a,p:p});tot+=a});
+ if(!rows.length){ask("입력 내용 없음","읽을 수 있는 줄이 없어요. 한 줄에 한 명씩 '이름 금액'으로 입력해 주세요.",[["확인","pri",closeM]]);return}
+ var nn=Object.keys(nw).length;
+ ask("이월금액 등록 확인",ward+"병동 · 기준일 "+d.replace(/-/g,".")+"<br>이월금액 "+rows.length+"건, 합계 "+won(tot)+(nn?"<br>새로 추가될 환자 "+nn+"명":"")+(bad.length?"<br><b>읽지 못한 줄 "+bad.length+"개</b>는 건너뛰어요: "+esc(bad.slice(0,5).join(" / "))+(bad.length>5?" …":""):""),[
+  ["등록","pri",function(){var made={};rows.forEach(function(r){var p=r.p||made[r.n];if(!p){p={id:uid("p"),ward:ward,name:r.n};S.patients.push(p);made[r.n]=p}S.adj.push({id:uid("a"),pid:p.id,date:d,amt:r.a,memo:"수기 이월"})});save();closeM();render()}],
+  ["취소","",closeM]]);
+}
+function wst(w){var r={n:0,att:0,carry:0,rew:0,sp:0,bal:0,c1:0,c2:0,ta:0,te:0,oc:0,tc:0};pats(w).forEach(function(p){var s=stats(p.id,Y,M);r.n++;if(s.days)r.att++;["carry","rew","sp","bal","c1","c2","ta","te","oc","tc"].forEach(function(f){r[f]+=s[f]})});return r}
+function vStat(){
+ var sw='<div class="wt" style="grid-template-columns:1fr 1fr"><button class="'+(sv=="w"?"on":"")+'" onclick="sv=\'w\';render()">병동별</button><button class="'+(sv=="p"?"on":"")+'" onclick="sv=\'p\';render()">환자별</button></div>';
+ return sw+(sv=="w"?vStatW():wtabs("selW")+(P(pid)?vStatP():noP()));
+}
+function vStatW(){
+ var g=function(l,v,c){return '<div><small>'+l+'</small><b class="'+(c||"")+'">'+v+'</b></div>'},T={n:0,carry:0,rew:0,sp:0,bal:0,oc:0};
+ var rows=[2,3,4,5].map(function(w){var r=wst(w);["n","carry","rew","sp","bal","oc"].forEach(function(f){T[f]+=r[f]});return '<tr><td>'+w+'병동 ('+r.n+'명)</td><td>'+won(r.carry)+'</td><td>'+won(r.rew)+'</td><td>'+won(r.sp)+'</td><td>'+r.oc+'회</td><td class="bal">'+won(r.bal)+'</td></tr>'}).join("");
+ var r=wst(ward),pr=pats(ward).map(function(p){var s=stats(p.id,Y,M);return '<tr><td>'+esc(p.name)+'</td><td>'+won(s.rew)+'</td><td>'+won(s.sp)+'</td><td>'+s.oc+'회</td><td class="bal">'+won(s.bal)+'</td></tr>'}).join("");
+ return nav()+'<div class="card"><b>'+(M+1)+'월 병동별 합계</b><div class="tw"><table class="tb"><tr><th>병동</th><th>이월</th><th>적립</th><th>지출</th><th>주문</th><th>잔액</th></tr>'+rows+'<tr class="tot"><td>전체 ('+T.n+'명)</td><td>'+won(T.carry)+'</td><td>'+won(T.rew)+'</td><td>'+won(T.sp)+'</td><td>'+T.oc+'회</td><td>'+won(T.bal)+'</td></tr></table></div></div>'+
+ wtabs("selW")+'<div class="card"><b>'+ward+'병동 상세</b><div class="st" style="margin-top:8px">'+g("출석한 환자",r.att+"명 / "+r.n+"명")+g("100원 / 200원 횟수",r.c1+"회 / "+r.c2+"회")+g("이번 달 적립",won(r.rew))+g("이번 달 지출",won(r.sp))+g("이번 달 물품 주문",r.oc+"회")+g("누적 적립",won(r.ta))+g("누적 지출",won(r.te))+g("누적 물품 주문",r.tc+"회")+'</div></div>'+
+ '<div class="card"><b>'+ward+'병동 환자별 ('+(M+1)+'월)</b><div class="tw"><table class="tb"><tr><th>이름</th><th>적립</th><th>지출</th><th>주문</th><th>잔액</th></tr>'+(pr||'<tr><td colspan="5">환자가 없어요</td></tr>')+'</table></div></div>';
+}
+function vStatP(){
+ var s=stats(pid,Y,M),g=function(l,v,c){return '<div><small>'+l+'</small><b class="'+(c||"")+'">'+v+'</b></div>'};
+ return hdr()+nav()+'<div class="card"><b>'+(M+1)+'월</b><div class="st" style="margin-top:8px">'+g("출석 일수",s.days+"일")+g("100원 횟수",s.c1+"회")+g("200원 횟수",s.c2+"회")+g("총 적립액",won(s.rew))+g("총 지출액",won(s.sp))+g("물품 주문",s.oc+"회")+g("이월금액",won(s.carry))+g("현재 잔액",won(s.bal),"bal")+'</div></div>'+
+ '<div class="card"><b>전체 누적</b><div class="st" style="margin-top:8px">'+g("누적 적립액",won(s.ta))+g("누적 지출액",won(s.te))+g("누적 물품 주문",s.tc+"회")+g("이월금 추가 합계",won(s.ia))+'</div></div>';
+}
+function vSet(){
+ return fbCard()+'<div class="card"><b>CSV 백업</b><p class="mu">전체 병동의 환자, 적립, 지출(지급 여부 포함)이 CSV로 담겨요. 엑셀에서 열어 볼 수 있어요.</p><textarea id="bt" readonly></textarea><div class="acts" style="margin-top:8px"><button class="pri" onclick="copyB()">복사</button><button onclick="dlB()">CSV 파일로 저장</button></div><div id="bm" class="mu" style="margin-top:6px"></div></div>'+
+ '<div class="card"><b>CSV 복원</b><p class="mu">CSV 파일을 선택하거나 내용을 붙여넣으세요. 환자ID가 비어 있으면 병동+이름으로 맞춰요. 적용 전에 덮어쓰기/합치기를 선택하고 확인해요.</p><input type="file" id="bf" accept=".csv,text/csv" style="margin-bottom:8px"><textarea id="rt" placeholder="여기에 CSV 붙여넣기"></textarea><button class="pri" style="margin-top:8px" onclick="restore($(\'#rt\').value)">복원하기</button><div id="rm" class="mu" style="color:var(--dn);margin-top:6px"></div></div>'+
+ '<div class="card"><b>데이터 초기화</b><p class="mu">모든 환자와 기록이 삭제돼요. 먼저 백업해 두세요.</p><button class="dng" onclick="reset()">전체 초기화</button></div>'+
+ '<div class="card mu">앱 버전 1.9.1 · 통화 원(KRW) · 공휴일 자동 계산 · 데이터는 이 기기에 자동 저장돼요.</div>';
+}
+function csvq(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function toCSV(){
+ var L=[["구분","환자ID","병동","이름","날짜","금액","메모","지급"]];
+ S.patients.forEach(function(p){L.push(["환자",p.id,p.ward,p.name,"","","",""])});
+ S.patients.forEach(function(p){var a=S.att[p.id]||{};Object.keys(a).sort().forEach(function(k){nv(a[k]).forEach(function(e){L.push(["적립",p.id,p.ward,p.name,k,e.a,"",""])})})});
+ S.exp.forEach(function(e){var p=P(e.pid)||{};L.push(["지출",e.pid,p.ward||"",p.name||"",e.date,e.amt,e.memo||"",e.done?"지급완료":""])});
+ S.adj.forEach(function(a){var p=P(a.pid)||{};L.push(["이월",a.pid,p.ward||"",p.name||"",a.date,a.amt,a.memo||"",""])});
+ return L.map(function(r){return r.map(csvq).join(",")}).join("\n");
+}
+function parseCSV(t){
+ t=t.replace(/^\uFEFF/,"");var R=[],r=[],f="",qt=false;
+ for(var i=0;i<t.length;i++){var c=t[i];
+  if(qt){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else qt=false}else f+=c}
+  else if(c=='"')qt=true;
+  else if(c==","){r.push(f);f=""}
+  else if(c=="\n"||c=="\r"){if(c=="\r"&&t[i+1]=="\n")i++;r.push(f);f="";R.push(r);r=[]}
+  else f+=c}
+ if(f!==""||r.length){r.push(f);R.push(r)}
+ return R.filter(function(x){return x.some(function(y){return y.trim()!==""})});
+}
+function nd(s){var m=/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/.exec((s||"").trim());return m?m[1]+"-"+pad(+m[2])+"-"+pad(+m[3]):null}
+function bk(){
+ var t=$("#bt");if(t)t.value=toCSV();
+ var f=$("#bf");if(f)f.onchange=function(){var r=new FileReader();r.onload=function(){restore(r.result)};if(f.files[0])r.readAsText(f.files[0])};
+}
+function copyB(){var t=$("#bt");t.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}$("#bm").textContent=ok?"복사했어요.":"선택된 내용을 길게 눌러 복사하세요."}
+function dlB(){try{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+$("#bt").value],{type:"text/csv;charset=utf-8"}));a.download="attendance-backup-"+key(now.getFullYear(),now.getMonth(),now.getDate())+".csv";document.body.appendChild(a);a.click();a.remove();$("#bm").textContent="저장을 시도했어요. 안 되면 복사 버튼을 사용하세요."}catch(e){$("#bm").textContent="이 환경에서는 파일 저장이 막혀 있어요. 복사 버튼을 사용하세요."}}
+function restore(txt){
+ var R=parseCSV(txt),rm=$("#rm"),H={};
+ if(R.length)R[0].forEach(function(h,i){H[h.trim()]=i});
+ if(!R.length||H["구분"]==null){if(rm)rm.textContent="올바른 CSV가 아니에요. 첫 줄은 구분,환자ID,병동,이름,날짜,금액,메모,지급 형식이어야 해요.";return}
+ var c=function(r,n){return H[n]==null?"":(r[H[n]]||"")};
+ var ip=[],byId={},byN={},att={},ex=[],ad=[],bad=0,na=0;
+ function get(id,w,n){id=(id||"").trim();n=(n||"").trim();w=parseInt(w,10);var nk=w+"|"+n;
+  if(id&&byId[id])return byId[id];if(byN[nk])return byN[nk];
+  if(!n||!(w>=2&&w<=5))return null;
+  var p={id:id||uid("p"),ward:w,name:n};ip.push(p);byId[p.id]=p;byN[nk]=p;return p}
+ for(var i=1;i<R.length;i++){var r=R[i],ty=c(r,"구분").trim(),p=get(c(r,"환자ID"),c(r,"병동"),c(r,"이름"));
+  if(ty=="환자"){if(!p)bad++;continue}
+  var d=nd(c(r,"날짜")),a=parseInt(String(c(r,"금액")).replace(/[,원\s]/g,""),10);
+  if(!p||!d||!(ty=="이월"?(a&&a==a):a>0)){bad++;continue}
+  if(ty=="적립"){((att[p.id]=att[p.id]||{})[d]=att[p.id][d]||[]).push({a:a});na++}
+  else if(ty=="지출"){var dn=c(r,"지급").trim()=="지급완료";ex.push({id:uid("e"),pid:p.id,date:d,amt:a,memo:c(r,"메모").trim(),done:dn,dt:""})}
+  else if(ty=="이월")ad.push({id:uid("a"),pid:p.id,date:d,amt:a,memo:c(r,"메모").trim()});
+  else bad++}
+ ask("복원 방식 선택","CSV에는 환자 "+ip.length+"명, 적립 "+na+"건, 지출 "+ex.length+"건, 이월금 "+ad.length+"건이 있어요."+(bad?" 읽지 못한 "+bad+"줄은 건너뛰어요.":"")+"<br><b>덮어쓰기</b>: 현재 데이터를 모두 지우고 CSV로 교체"+(synced?" <b>(공유 중이라 모든 기기에 반영돼요)</b>":"")+"<br><b>합치기</b>: 현재 데이터를 유지하고 CSV를 추가 (같은 날짜 적립은 CSV 값 우선)",[
+ ["덮어쓰기","dng",function(){S={patients:ip,att:att,exp:ex,adj:ad};pid=null;save();closeM();render()}],
+ ["합치기","pri",function(){
+  var map={};ip.forEach(function(p){var e=S.patients.filter(function(x){return x.id==p.id||(x.ward==p.ward&&x.name==p.name)})[0];if(e)map[p.id]=e.id;else{S.patients.push(p);map[p.id]=p.id}});
+  for(var id in att){var t=S.att[map[id]]=S.att[map[id]]||{};for(var k in att[id])t[k]=att[id][k]}
+  var sk={};S.exp.forEach(function(e){sk[e.pid+"|"+e.date+"|"+e.amt+"|"+e.memo]=1});
+  ex.forEach(function(e){e.pid=map[e.pid];var kk=e.pid+"|"+e.date+"|"+e.amt+"|"+e.memo;if(!sk[kk]){sk[kk]=1;S.exp.push(e)}});
+  var sk2={};S.adj.forEach(function(a){sk2[a.pid+"|"+a.date+"|"+a.amt+"|"+a.memo]=1});ad.forEach(function(a){a.pid=map[a.pid];var kk=a.pid+"|"+a.date+"|"+a.amt+"|"+a.memo;if(!sk2[kk]){sk2[kk]=1;S.adj.push(a)}});
+  save();closeM();render()}],
+ ["취소","",closeM]]);
+}
+function reset(){ask("전체 초기화","모든 환자와 기록이 삭제되며 되돌릴 수 없어요."+(synced?"<br><b>실시간 공유 중이라 모든 기기의 데이터가 함께 삭제돼요.</b>":"")+" 정말 초기화할까요?",[["초기화","dng",function(){S={patients:[],att:{},exp:[],adj:[]};pid=null;save();closeM();render()}],["취소","",closeM]])}
+render();
+// ---- Firebase 실시간 공유 (로그인 없이 공유 코드 방식) ----
+var CK="attend-fbcfg",SYK="attend-sync",RK2="attend-room",fdb=null,synced=false,decided=false,pp=null,unsubs=[],cloud={p:{},e:{},a:{}},snP=null,snE=null,snA=null,fstate="",room="";
+try{room=localStorage.getItem(RK2)||""}catch(e){}
+function isAuto(){return !!(AUTO_ROOM&&getCfg())}
+if(isAuto())room=AUTO_ROOM;
+function getCfg(){if(FB_CONFIG)return FB_CONFIG;try{return JSON.parse(localStorage.getItem(CK)||"null")}catch(e){return null}}
+function cj(v){if(Array.isArray(v))return"["+v.map(cj).join(",")+"]";if(v&&typeof v=="object")return"{"+Object.keys(v).sort().map(function(k){return JSON.stringify(k)+":"+cj(v[k])}).join(",")+"}";return JSON.stringify(v)}
+function pdoc(p){var a={},src=S.att[p.id]||{};for(var k in src)a[k]=nv(src[k]).map(function(e){return{a:e.a}});return{ward:p.ward,name:p.name,att:a}}
+function edoc(x){return{pid:x.pid,date:x.date,amt:x.amt,memo:x.memo||"",done:!!x.done,dt:x.dt||""}}
+function setSt(m){fstate=m;var e=$("#fbs");if(e)e.textContent=m;var d=$("#sd");if(d)d.textContent=synced?"● 실시간 공유 중":(room&&getCfg()?"○ 연결 중":"")}
+function rr(){var a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&$("#v").contains(a))return;render()}
+function loadFB(cb){
+ if(window.firebase&&firebase.firestore){cb(true);return}
+ var u=["app","firestore"].map(function(n){return"https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-"+n+"-compat.js"}),i=0;
+ (function nx(){if(i>=u.length){cb(true);return}var s=document.createElement("script");s.src=u[i++];s.onload=nx;s.onerror=function(){cb(false)};document.head.appendChild(s)})();
+}
+function startSync(){
+ var cfg=getCfg();if(!cfg||!room)return;
+ setSt("연결 중…");
+ loadFB(function(ok){
+  if(!ok){setSt("Firebase 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.");return}
+  try{if(!firebase.apps.length)firebase.initializeApp(cfg);if(!fdb){fdb=firebase.firestore();pp=fdb.enablePersistence({synchronizeTabs:true}).catch(function(){})}}catch(e){setSt("설정값 오류: "+e.message);return}
+  pp.then(attach);
+ });
+}
+function detach(){unsubs.forEach(function(f){f()});unsubs=[];synced=false;snP=snE=snA=null}
+function attach(){
+ detach();var base=fdb.collection("rooms").doc(room);
+ var er=function(e){setSt(e.code=="permission-denied"?"권한 오류: Firestore 규칙을 확인해 주세요.":"오류: "+(e.code||e.message))};
+ unsubs.push(base.collection("patients").onSnapshot(function(s){snP=s;onSnap()},er));
+ unsubs.push(base.collection("exps").onSnapshot(function(s){snE=s;onSnap()},er));
+ unsubs.push(base.collection("adjs").onSnapshot(function(s){snA=s;onSnap()},er));
+}
+function onSnap(){
+ if(!snP||!snE||!snA)return;
+ if(!synced){
+  if(isAuto()){
+   var empty=!snP.size&&!snE.size&&!snA.size;
+   if(empty&&(snP.metadata.fromCache||snE.metadata.fromCache||snA.metadata.fromCache))return;
+   synced=true;
+   if(empty&&S.patients.length){cloud={p:{},e:{},a:{}};push();setSt("연결됨");rr();return}
+  }else if(localStorage.getItem(SYK)=="1")synced=true;
+  else{if(decided)return;decided=true;decide();return}
+ }
+ apply();
+}
+function decide(){
+ var np=snP.size,ne=snE.size+snA.size;
+ if(!np&&!ne)ask("처음 연결","이 공유 코드에는 아직 데이터가 없어요. 이 기기의 데이터(환자 "+S.patients.length+"명)를 올려서 공유를 시작할까요?",[["올리기","pri",function(){go1(true)}],["취소","",cancelSync]]);
+ else ask("처음 연결","이 공유 코드에 환자 "+np+"명의 데이터가 있어요. 이 기기의 데이터는 공유 데이터로 <b>교체</b>돼요. 필요하면 먼저 CSV로 백업하세요.",[["교체","dng",function(){go1(false)}],["취소","",cancelSync]]);
+}
+function go1(up){try{localStorage.setItem(SYK,"1")}catch(e){}decided=false;synced=true;closeM();if(up){cloud={p:{},e:{},a:{}};push();setSt("연결됨")}else apply();rr()}
+function cancelSync(){closeM();fbOut()}
+function apply(){
+ var np=[],na={},ne=[],ad=[];cloud={p:{},e:{},a:{}};
+ snP.forEach(function(d){var x=d.data(),a=x.att||{};np.push({id:d.id,ward:x.ward,name:x.name});na[d.id]=a;cloud.p[d.id]=cj({ward:x.ward,name:x.name,att:a})});
+ snE.forEach(function(d){var x=d.data(),e={pid:x.pid,date:x.date,amt:x.amt,memo:x.memo||"",done:!!x.done,dt:x.dt||""};e.id=d.id;ne.push(e);cloud.e[d.id]=cj(edoc(e))});
+ snA.forEach(function(d){var x=d.data(),e={pid:x.pid,date:x.date,amt:x.amt,memo:x.memo||""};e.id=d.id;ad.push(e);cloud.a[d.id]=cj(adoc(e))});
+ S.patients=np;S.att=na;S.exp=ne;S.adj=ad;saveLocal();setSt("연결됨");rr();
+}
+function push(){
+ if(!synced||!fdb)return;
+ var base=fdb.collection("rooms").doc(room),ops=[],sp={},se={},sa={};
+ S.patients.forEach(function(p){sp[p.id]=1;var d=pdoc(p),j=cj(d);if(cloud.p[p.id]!==j){ops.push(["s",base.collection("patients").doc(p.id),d]);cloud.p[p.id]=j}});
+ Object.keys(cloud.p).forEach(function(i){if(!sp[i]){ops.push(["d",base.collection("patients").doc(i)]);delete cloud.p[i]}});
+ S.exp.forEach(function(x){se[x.id]=1;var d=edoc(x),j=cj(d);if(cloud.e[x.id]!==j){ops.push(["s",base.collection("exps").doc(x.id),d]);cloud.e[x.id]=j}});
+ Object.keys(cloud.e).forEach(function(i){if(!se[i]){ops.push(["d",base.collection("exps").doc(i)]);delete cloud.e[i]}});
+ S.adj.forEach(function(x){sa[x.id]=1;var d=adoc(x),j=cj(d);if(cloud.a[x.id]!==j){ops.push(["s",base.collection("adjs").doc(x.id),d]);cloud.a[x.id]=j}});
+ Object.keys(cloud.a).forEach(function(i){if(!sa[i]){ops.push(["d",base.collection("adjs").doc(i)]);delete cloud.a[i]}});
+ for(var o=0;o<ops.length;o+=400){var b=fdb.batch();ops.slice(o,o+400).forEach(function(t){if(t[0]=="s")b.set(t[1],t[2]);else b.delete(t[1])});b.commit().catch(function(e){setSt("저장 실패: "+(e.code||e.message))})}
+}
+function saveCfg(){
+ var t=$("#fc").value,o={},m,re=/["']?(\w+)["']?\s*:\s*["']([^"']*)["']/g;
+ while((m=re.exec(t)))o[m[1]]=m[2];
+ if(!o.apiKey||!o.projectId){setSt("apiKey와 projectId가 보이지 않아요. firebaseConfig 전체를 붙여넣어 주세요.");return}
+ try{localStorage.setItem(CK,JSON.stringify(o))}catch(e){}
+ rr();
+}
+function clrCfg(){try{localStorage.removeItem(CK)}catch(e){}rr()}
+function connect(){
+ var c=$("#fk").value.trim();
+ if(c.length<8){setSt("공유 코드는 8자 이상으로 입력해 주세요. 길수록 안전해요.");return}
+ if(/[\/\s]/.test(c)||/^__/.test(c)||/^\.+$/.test(c)){setSt("공유 코드에는 공백과 / 를 쓸 수 없어요.");return}
+ detach();room=c;decided=false;
+ try{localStorage.setItem(RK2,c);localStorage.setItem(SYK,"0")}catch(e){}
+ startSync();rr();
+}
+function fbOut(){try{localStorage.setItem(SYK,"0");localStorage.removeItem(RK2)}catch(e){}room="";decided=false;detach();setSt("");rr()}
+function fbCard(){
+ var cfg=getCfg(),h='<div class="card"><b>실시간 공유 (Firebase)</b>';
+ if(!cfg)return h+'<p class="mu">여러 기기에서 같은 데이터를 함께 보고 수정하려면 Firebase 설정값(firebaseConfig)이 필요해요. Firebase 콘솔에서 복사해 붙여넣으세요.</p><textarea id="fc" placeholder="const firebaseConfig = { apiKey: ..., authDomain: ..., projectId: ..., appId: ... };"></textarea><button class="pri" style="margin-top:8px" onclick="saveCfg()">설정값 저장</button><div id="fbs" class="mu" style="margin-top:6px">'+esc(fstate)+'</div></div>';
+ if(isAuto())return h+'<p class="mu">자동으로 연결돼요. 이 주소를 연 모든 기기가 같은 데이터를 실시간으로 공유해요. 따로 입력할 코드는 없어요.</p><div id="fbs" class="mu" style="margin-top:6px">'+esc(fstate)+'</div></div>';
+ if(!room)return h+'<p class="mu">로그인 없이 <b>공유 코드</b>가 같은 기기끼리 데이터를 공유해요. 길고 추측하기 어려운 코드를 정하고(예: 영문+숫자 16자 이상), 담당자들에게만 알려주세요.</p><input id="fk" placeholder="공유 코드 (8자 이상)" autocomplete="off" style="margin-bottom:8px"><div class="acts"><button class="pri" onclick="connect()">연결</button>'+(FB_CONFIG?'':'<button onclick="clrCfg()">설정값 지우기</button>')+'</div><div id="fbs" class="mu" style="margin-top:6px">'+esc(fstate)+'</div></div>';
+ return h+'<p class="mu">공유 코드 '+esc(room.slice(0,3))+'••• 로 연결돼 있어요. 같은 코드를 입력한 기기와 데이터가 실시간으로 공유돼요.</p><div class="acts"><button class="dng" onclick="fbOut()">공유 끄기</button></div><div id="fbs" class="mu" style="margin-top:6px">'+esc(fstate)+'</div></div>';
+}
+setSt("");if(getCfg()&&room)startSync();
+var swX=0,swY=0,swOn=false;
+$("#v").addEventListener("touchstart",function(e){var t=e.touches[0];swX=t.clientX;swY=t.clientY;swOn=e.touches.length==1&&!!e.target.closest(".swp")},{passive:true});
+$("#v").addEventListener("touchend",function(e){if(!swOn)return;swOn=false;var t=e.changedTouches[0],dx=t.clientX-swX,dy=t.clientY-swY;if(tab=="cal"&&P(pid)&&Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)step(dx<0?1:-1)},{passive:true});
+</script></body></html>
